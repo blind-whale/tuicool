@@ -2,4 +2,4 @@
 .idea
 
 # 忽略.pyc文件
-.pyc
+*.pyc
