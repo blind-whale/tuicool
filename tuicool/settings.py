@@ -95,6 +95,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
 #    'tuicool.pipelines.TuicoolPipeline': 300,
+	'tuicool.pipelines.ImageDownload':200,
 	'tuicool.pipelines.DbStorePipeline':300,
 }
 

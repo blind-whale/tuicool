@@ -95,22 +95,26 @@ class TuicoolSpider(scrapy.spiders.Spider):
 		tag = ''
 		for s in response.css('a span.new-label::text').extract():
 			tag = tag +s+','
-		images = ''
-		'''body = ''
+		images = []
+		body = response.css('div.article_body').extract_first()
 		for sel in response.css('div.article_body p'):
 			temp=sel.css('img')
 			if len(temp)!=0:
 				image_url = temp.css('img::attr(src)').extract_first()
 				if image_url is not None:
-					images = images +image_url+','
+					images.append(image_url)
+					imagename = image_url.split('/')[-1]
+					imagename='http://101.200.34.13:8080/articles/img/'+imagename;
+					body = body.replace(image_url,imagename)
 				continue
-			p=sel.css('p::text').extract_first()
-			p='  '+p+'\r\n'
-			body=body+p'''
+			#p=sel.css('p::text').extract_first()
+			#p='  '+p+'\r\n'
+			#body=body+p
+		print '******images******',images
+
 		os.chdir('/data/wwwroot/tuicool/articles')
 		origin_dir=os.getcwd()
-		body = response.css('div.article_body').extract_first()
-		body = u'<html><head><title>%s</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>%s</body></html>' % (title,body)
+		body = u'<html><head><title>%s</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style type=\"text/css\">img{max-width:100%%}</style></head><body>%s</body></html>' % (title,body)
 		file_name=''+response.url.rpartition('/')[2]+'.html'
 		if not os.path.exists(file_name):
 			fbody=open(file_name,'wb')
@@ -124,6 +128,7 @@ class TuicoolSpider(scrapy.spiders.Spider):
 			'body':'http://101.200.34.13:8080/articles/'+file_name,
 			'web_name':web_name,
 			'origin_url':origin_url,
+			'images':images,
 		}
 	
 	def split_nav_url(self,url):

@@ -7,6 +7,8 @@
 
 import scrapy
 import MySQLdb
+import urllib
+import os
 
 class TuicoolPipeline(object):
     def process_item(self, item, spider):
@@ -58,16 +60,16 @@ class DbStorePipeline(object):
 	def db_insert(self,item):
 		sql = None
 		if item.has_key('body'):
-			sql = 'INSERT INTO tuicool(title,created_at,tag,body,web_name,origin_url)' + \
-				' VALUES(\'%s\',\'%s\',\'%s\',\'%s\',\'%s\',\'%s\');'
-			sql = sql % (item['title'],item['created_at'],item['tag'],item['body'],item['web_name'],item['origin_url'])
+			sql = 'INSERT INTO tuicool(title,created_at,tag,body,web_name,origin_url,images)' + \
+				' VALUES(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");'
+			sql = sql % (item['title'],item['created_at'],item['tag'],item['body'],item['web_name'],item['origin_url'],str(item['images']))
 		elif item.has_key('category') and item['category'] is not None:
 			sql = 'INSERT INTO tuicool(title,thumb_image,category)' + \
-				' VALUES(\'%s\',\'%s\',\'%s\');'
+				' VALUES(\"%s\",\"%s\",\"%s\");'
 			sql = sql % (item['title'],item['thumb_image'],item['category'])
 		else:
 			sql = 'INSERT INTO tuicool(title,thumb_image,is_hot)' + \
-				' VALUES(\'%s\',\'%s\',%d);'
+				' VALUES(\"%s\",\"%s\",%d);'
 			sql = sql % (item['title'],item['thumb_image'],item['is_hot'])
 		
 		print "sql:::",sql
@@ -83,12 +85,13 @@ class DbStorePipeline(object):
 	def db_update(self,item,query):
 		sql = None
 		if item.has_key('body'):
-			sql = 'UPDATE tuicool SET created_at=\'%s\',tag=\'%s\',body=\'%s\',web_name=\'%s\',origin_url=\'%s\' WHERE article_id=%d;' % \
-				(item['created_at'],item['tag'],item['body'],item['web_name'],item['origin_url'],query['article_id'])
+			sql = 'UPDATE tuicool SET created_at=\"%s\",tag=\"%s\",body=\"%s\",web_name=\"%s\",origin_url=\"%s\",images=\"%s\" WHERE article_id=%d;' % \
+				(item['created_at'],item['tag'],item['body'],item['web_name'],item['origin_url'],str(item['images']),query['article_id'])
 		elif item.has_key('category') and item['category'] is not None:
-			sql = 'UPDATE tuicool SET title=\'%s\',thumb_image=\'%s\',category=\'%s\', WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['category'],query['article_id'])
+			sql = 'UPDATE tuicool SET title=\"%s\",thumb_image=\"%s\",category=\"%s\", WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['category'],query['article_id'])
 		else:
-			sql = 'UPDATE tuicool SET title=\'%s\',thumb_image=\'%s\',is_hot=%d WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['is_hot'],query['article_id'])
+			sql = 'UPDATE tuicool SET title=\"%s\",thumb_image=\"%s\",is_hot=%d WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['is_hot'],query['article_id'])
+		print "sql:::", sql
 		cur = self.conn.cursor()
 		try:
 			cur.execute(sql)
@@ -96,3 +99,22 @@ class DbStorePipeline(object):
 		except Exception,e:
 			print e
 			self.conn.rollback()
+
+
+class ImageDownload(object):
+	def process_item(self,item,spider):
+		if item and item.has_key('images'):
+			images = item['images']
+			for index in range(len(images)):
+				url = images[index]
+				temp = url.split('/')
+				name = temp[-1]
+				filaname = os.path.join('/data/wwwroot/tuicool/articles/img/',name)
+				if not os.path.exists(filaname):
+					self.download(url,filaname)
+				item['images'][index] = 'http://101.200.34.13:8080/articles/img/'+filaname
+		return item
+
+	def download(self,url,name):
+		urllib.urlretrieve(url,filename=name)
+
