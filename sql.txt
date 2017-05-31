@@ -1,5 +1,5 @@
 # create tuicool table
 CREATE TABLE IF NOT EXISTS tuicool (article_id INT NOT NULL AUTO_INCREMENT,
 	title VARCHAR(128),author VARCHAR(64),created_at DATETIME,thumb_image VARCHAR(128),
-	category VARCHAR(128),tag VARCHAR(128),images VARCHAR(1024),body TEXT,web_name VARCHAR(64),web_url VARCHAR(128),
+	category VARCHAR(128),tag VARCHAR(128),images TEXT,body TEXT,web_name VARCHAR(64),web_url VARCHAR(128),
 	origin_url VARCHAR(128),PRIMARY KEY (article_id))ENGINE=InnoDB CHARSET=utf8;
