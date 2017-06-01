@@ -112,7 +112,7 @@ class ImageDownload(object):
 				filaname = os.path.join('/data/wwwroot/tuicool/articles/img/',name)
 				if not os.path.exists(filaname):
 					self.download(url,filaname)
-				item['images'][index] = 'http://101.200.34.13:8080/articles/img/'+filaname
+				item['images'][index] = 'http://101.200.34.13:8080/articles/img/'+name
 		return item
 
 	def download(self,url,name):

@@ -99,8 +99,8 @@ class TuicoolSpider(scrapy.spiders.Spider):
 		body = response.css('div.article_body').extract_first()
 		for sel in response.css('div.article_body p'):
 			temp=sel.css('img')
-			if len(temp)!=0:
-				image_url = temp.css('img::attr(src)').extract_first()
+			for img in temp:
+				image_url = img.css('img::attr(src)').extract_first()
 				if image_url is not None:
 					images.append(image_url)
 					imagename = image_url.split('/')[-1]
