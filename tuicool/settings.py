@@ -121,7 +121,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # Database configuration
-MYSQL_HOST = '101.200.34.13'
+MYSQL_HOST = 'localhost'
 MYSQL_DBNAME = 'crawl'
 MYSQL_USER = 'admin'
 MYSQL_PASSWD = 'onetwothree'
