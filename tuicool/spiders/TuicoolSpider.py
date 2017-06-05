@@ -80,7 +80,7 @@ class TuicoolSpider(scrapy.spiders.Spider):
 		if next_page is not None:
 			next_page = response.urljoin(next_page)
 			print '************next_page*************' + next_page
-			#yield scrapy.Request(next_page,callback = self.parse,priority=2)
+			yield scrapy.Request(next_page,callback = self.parse,priority=2)
 	
 	def parse_article(self,response):
 		title = response.css('div.span8 h1::text').extract_first()
