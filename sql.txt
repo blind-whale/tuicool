@@ -10,6 +10,64 @@ CREATE TABLE IF NOT EXISTS tuicool (
 	tag VARCHAR(128),
 	images TEXT,
 	body TEXT,
+	des TEXT,
 	web_name VARCHAR(64),
 	web_url VARCHAR(128),
+	web_logo VARCHAR(256),
 	origin_url VARCHAR(128),PRIMARY KEY (article_id))ENGINE=InnoDB CHARSET=utf8;
+
+
+# create website table
+CREATE TABLE website(
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(128) NOT NULL UNIQUE,
+    url VARCHAR(256),
+    logo VARCHAR(256),
+    slogan VARCHAR(256),
+    article_count INT DEFAULT 0,
+    PRIMARY KEY (id))ENGINE=InnoDB CHARSET=utf8;
+
+
+# build relationship between article and website
+CREATE TABLE article_website(
+    id INT NOT NULL AUTO_INCREMENT,
+    article_id INT,
+    website_id INT,
+    PRIMARY KEY(id))ENGINE=InnoDB CHARSET=utf8;
+# add unique constraint
+ALTER TABLE article_website
+ADD UNIQUE KEY(article_id,website_id);
+
+
+# create tag table
+CREATE TABLE tag(
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(64) UNIQUE,
+    article_count INT DEFAULT 0,
+    PRIMARY KEY (id))ENGINE=InnoDB CHARSET=utf8;
+
+
+# build relationship between article and tag
+CREATE TABLE article_tag(
+    id INT NOT NULL AUTO_INCREMENT,
+    article_id INT,
+    tag_id INT,
+    PRIMARY KEY(id))ENGINE=Innodb CHARSET=utf8;
+ALTER TABLE article_tag
+ADD UNIQUE KEY (article_id,tag_id);
+
+
+CREATE TABLE category (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(64) UNIQUE,
+    article_count INT DEFAULT 0,
+    PRIMARY KEY (id))ENGINE=InnoDB CHARSET=utf8;
+
+CREATE TABLE article_category(
+    id INT NOT NULL AUTO_INCREMENT,
+    article_id INT,
+    category_id INT,
+    PRIMARY KEY(id))ENGINE=InnoDB CHARSET=utf8;
+ALTER TABLE article_category
+ADD UNIQUE KEY(article_id,category_id);
+

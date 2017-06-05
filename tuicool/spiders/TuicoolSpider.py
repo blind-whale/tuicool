@@ -80,7 +80,7 @@ class TuicoolSpider(scrapy.spiders.Spider):
 		if next_page is not None:
 			next_page = response.urljoin(next_page)
 			print '************next_page*************' + next_page
-			yield scrapy.Request(next_page,callback = self.parse,priority=2)
+			#yield scrapy.Request(next_page,callback = self.parse,priority=2)
 	
 	def parse_article(self,response):
 		title = response.css('div.span8 h1::text').extract_first()
@@ -90,13 +90,16 @@ class TuicoolSpider(scrapy.spiders.Spider):
 			created_at = created_at.replace(u'时间','').strip()
 		else:
 			return
-		web_name = response.css('div.article_meta span.from a::text').extract_first()
+		web_name = response.css('div.name div a::text').extract_first()
 		origin_url = response.css('div.article_meta div.source a::text').extract_first()
 		tag = ''
 		for s in response.css('a span.new-label::text').extract():
-			tag = tag +s+','
+			if s is not None and len(s.strip())!=0:
+				tag = tag + s.strip() + ','
+
 		images = []
 		body = response.css('div.article_body').extract_first()
+		des = None
 		for sel in response.css('div.article_body p'):
 			temp=sel.css('img')
 			for img in temp:
@@ -107,11 +110,13 @@ class TuicoolSpider(scrapy.spiders.Spider):
 					imagename='http://101.200.34.13:8080/articles/img/'+imagename;
 					body = body.replace(image_url,imagename)
 				continue
-			#p=sel.css('p::text').extract_first()
-			#p='  '+p+'\r\n'
-			#body=body+p
+			if des is None or len(des.strip())==0:
+				des = sel.css('p::text').extract_first()
+		des = des + ' ...'
 		print '******images******',images
 
+		logo = response.css('div div.logo img::attr(src)').extract_first()
+		print 'logo====',logo
 		os.chdir('/data/wwwroot/tuicool/articles')
 		origin_dir=os.getcwd()
 		body = u'<html><head><title>%s</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style type=\"text/css\">img{max-width:100%%}</style></head><body>%s</body></html>' % (title,body)
@@ -126,9 +131,11 @@ class TuicoolSpider(scrapy.spiders.Spider):
 			'created_at':created_at,
 			'tag':tag,
 			'body':'http://101.200.34.13:8080/articles/'+file_name,
-			'web_name':web_name,
+			'web_name':web_name.strip(),
 			'origin_url':origin_url,
 			'images':images,
+			'des':des,
+			'web_logo':logo,
 		}
 	
 	def split_nav_url(self,url):
@@ -138,11 +145,15 @@ class TuicoolSpider(scrapy.spiders.Spider):
 	def get_article_category(self,url):
 		strs = url.split('?')
 		temp = None
-		if len(strs) >= 2:
+		category = None
+		if TuicoolSpider.categories.has_key(strs[0]):
+			category = TuicoolSpider.categories[strs[0]]
+
+		if category is None:
 			temp = strs[0].rpartition('/')
 		if temp is not None and len(temp)==3:
 			strs[0]=temp[0]
-		category = None
+
 		if TuicoolSpider.categories.has_key(strs[0]):
 			category = TuicoolSpider.categories[strs[0]]
 		return category
