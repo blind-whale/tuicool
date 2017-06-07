@@ -69,6 +69,8 @@ class DbStorePipeline(object):
 				' VALUES(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");'
 			sql = sql % (item['title'],item['created_at'],item['tag'],item['body'],item['web_name'],item['origin_url'],str(item['images']),item['des'],item['web_logo'])
 		elif item.has_key('category') and item['category'] is not None:
+			helper = category.CategoryHelper(self.conn)
+			helper.db_update_category(query['article_id'], item['category'])
 			sql = 'INSERT INTO tuicool(title,thumb_image,category)' + \
 				' VALUES(\"%s\",\"%s\",\"%s\");'
 			sql = sql % (item['title'],item['thumb_image'],item['category'])
@@ -99,7 +101,7 @@ class DbStorePipeline(object):
 		elif item.has_key('category') and item['category'] is not None:
 			helper = category.CategoryHelper(self.conn)
 			helper.db_update_category(query['article_id'],item['category'])
-			sql = 'UPDATE tuicool SET title=\"%s\",thumb_image=\"%s\",category=\"%s\", WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['category'],query['article_id'])
+			sql = 'UPDATE tuicool SET title=\"%s\",thumb_image=\"%s\",category=\"%s\" WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['category'],query['article_id'])
 		else:
 			sql = 'UPDATE tuicool SET title=\"%s\",thumb_image=\"%s\",is_hot=%d WHERE article_id=%d;' % (item['title'],item['thumb_image'],item['is_hot'],query['article_id'])
 		#print "sql:::", sql

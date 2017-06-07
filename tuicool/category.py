@@ -13,16 +13,18 @@ class CategoryHelper:
         sql = 'INSERT INTO article_category(article_id,category_id) VALUES(%d,%d)' % (id, categroy_id)
         print "sql:::", sql
         cur = self.conn.cursor()
+        rowcount=0
         try:
             rowcount=cur.execute(sql)
             print 'rowcount=',rowcount
-            if rowcount==1:
-                self.db_update_category_count(categroy_id)
             self.conn.commit()
         except Exception, e:
             print e
             self.conn.rollback()
         cur.close()
+
+        if rowcount == 1:
+            self.db_update_category_count(category)
 
     # 根据分类名称，获取分类id
     def db_select_category(self, category):
@@ -54,8 +56,8 @@ class CategoryHelper:
         cur.close()
 
     # 根据分类id，更新分类文章数目
-    def db_update_category_count(self, id):
-        sql = 'UPDATE category SET article_count = article_count+1 WHERE id=%d' % (id)
+    def db_update_category_count(self, name):
+        sql = 'UPDATE category SET article_count = article_count+1 WHERE name=\"%s\"' % (name)
         print "sql:::", sql
         cur = self.conn.cursor()
         try:

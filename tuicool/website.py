@@ -10,16 +10,18 @@ class WebsiteHelper:
         sql = 'INSERT INTO article_website(article_id,website_id) VALUES(%d,%d)' % (article_id,website_id)
         print "sql:::", sql
         cur = self.conn.cursor()
+        rowcount=0
         try:
             rowcount=cur.execute(sql)
             print 'rowcount=',rowcount
-            if rowcount==1:
-                self.db_update_article_count(item['web_name'])
             self.conn.commit()
         except Exception,e:
             print e
             self.conn.rollback()
         cur.close()
+
+        if rowcount == 1:
+            self.db_update_article_count(item['web_name'])
 
     def db_insert_website(self,item):
         sql = 'INSERT INTO website(name,logo) VALUES(\"%s\",\"%s\")' % (item['web_name'],item['web_logo'])

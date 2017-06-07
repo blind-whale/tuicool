@@ -13,15 +13,17 @@ class TagHelper:
                 tag_id = self.db_select_tag(tag)
                 sql = 'INSERT INTO article_tag(article_id,tag_id) VALUES(%d,%d)' % (article_id, tag_id)
                 cur = self.conn.cursor()
+                rowcount=0
                 try:
                     rowcount = cur.execute(sql)
-                    if rowcount == 1:
-                        self.update_tag_count(tag)
                     self.conn.commit()
                 except Exception, e:
                     print e
                     self.conn.rollback()
                 cur.close()
+
+                if rowcount == 1:
+                    self.update_tag_count(tag)
 
 
 
